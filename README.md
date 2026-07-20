@@ -1,1 +1,1 @@
-# NP-SDE-Challenge
+# Challenge

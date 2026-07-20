@@ -1,0 +1,9 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Never commit real secrets (service_role key, .env files)
+.env
+.env.*

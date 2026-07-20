@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kanri — Task Board</title>
+  <meta name="description" content="A Kanban-style task board. Drag tasks between columns to manage your work visually." />
+
+  <!-- Fonts: Bricolage Grotesque (display) / Inter (body) / IBM Plex Mono (metadata) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"></div>
+      <h1 class="brand-name">Kanri</h1>
+    </div>
+
+    <div class="header-actions">
+      <span id="board-stats" class="board-stats mono" title="Total tasks on the board">
+      </span>
+      <button id="btn-new-task" class="btn btn-primary" type="button">
+        <span aria-hidden="true">+</span> New task
+      </button>
+    </div>
+  </header>
+
+  <div id="error-banner" class="error-banner" role="alert" hidden>
+    <span id="error-banner-text">Something went wrong.</span>
+    <button id="error-banner-dismiss" class="error-dismiss" type="button" aria-label="Dismiss error">×</button>
+  </div>
+
+  <main class="board" id="board" aria-label="Task board">
+    <section class="column" data-status="todo">
+      <header class="column-header">
+        <span class="status-dot" aria-hidden="true"></span>
+        <h2 class="column-title">To Do</h2>
+        <span class="column-count mono" aria-label="Task count">0</span>
+      </header>
+      <div class="column-list" data-status="todo"></div>
+    </section>
+
+    <section class="column" data-status="in_progress">
+      <header class="column-header">
+        <span class="status-dot" aria-hidden="true"></span>
+        <h2 class="column-title">In Progress</h2>
+        <span class="column-count mono" aria-label="Task count">0</span>
+      </header>
+      <div class="column-list" data-status="in_progress"></div>
+    </section>
+
+    <section class="column" data-status="in_review">
+      <header class="column-header">
+        <span class="status-dot" aria-hidden="true"></span>
+        <h2 class="column-title">In Review</h2>
+        <span class="column-count mono" aria-label="Task count">0</span>
+      </header>
+      <div class="column-list" data-status="in_review"></div>
+    </section>
+
+    <section class="column" data-status="done">
+      <header class="column-header">
+        <span class="status-dot" aria-hidden="true"></span>
+        <h2 class="column-title">Done</h2>
+        <span class="column-count mono" aria-label="Task count">0</span>
+      </header>
+      <div class="column-list" data-status="done"></div>
+    </section>
+  </main>
+
+  <dialog id="task-dialog" class="task-dialog">
+    <form id="task-form" method="dialog">
+      <h2 class="dialog-title">New task</h2>
+
+      <label class="field">
+        <span class="field-label">Title <span class="required">*</span></span>
+        <input id="f-title" name="title" type="text" maxlength="120" required autocomplete="off"
+               placeholder="e.g. Wire up drag-and-drop" />
+      </label>
+
+      <label class="field">
+        <span class="field-label">Description</span>
+        <textarea id="f-description" name="description" rows="3" maxlength="500"
+                  placeholder="Optional details…"></textarea>
+      </label>
+
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Priority</span>
+          <select id="f-priority" name="priority">
+            <option value="low">Low</option>
+            <option value="normal" selected>Normal</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Due date</span>
+          <input id="f-due" name="due_date" type="date" />
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" id="btn-cancel-task" class="btn btn-ghost">Cancel</button>
+        <button type="submit" id="btn-save-task" class="btn btn-primary">Add task</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
