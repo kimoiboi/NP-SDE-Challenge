@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kanri — Task Board</title>
+  <title>Doneward — Task Board</title>
   <meta name="description" content="A Kanban-style task board. Drag tasks between columns to manage your work visually." />
 
-  <!-- Fonts: Bricolage Grotesque (display) / Inter (body) / IBM Plex Mono (metadata) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -20,12 +19,11 @@
   <header class="app-header">
     <div class="brand">
       <div class="brand-mark" aria-hidden="true"></div>
-      <h1 class="brand-name">Kanri</h1>
+      <h1 class="brand-name">Doneward</h1>
     </div>
 
     <div class="header-actions">
-      <span id="board-stats" class="board-stats mono" title="Total tasks on the board">
-      </span>
+      <span id="board-stats" class="board-stats mono" title="Total tasks on the board"></span>
       <button id="btn-new-task" class="btn btn-primary" type="button">
         <span aria-hidden="true">+</span> New task
       </button>
@@ -112,6 +110,19 @@
         <button type="submit" id="btn-save-task" class="btn btn-primary">Add task</button>
       </div>
     </form>
+  </dialog>
+
+  <dialog id="task-detail-dialog" class="task-dialog task-detail">
+    <div class="detail-inner">
+      <header class="detail-header">
+        <h2 id="detail-title" class="dialog-title"></h2>
+        <button id="btn-close-detail" class="detail-close" type="button" aria-label="Close details">×</button>
+      </header>
+      <p id="detail-desc" class="detail-desc"></p>
+      <div id="detail-meta" class="task-meta"></div>
+      <h3 class="activity-heading">Activity</h3>
+      <div id="activity-list" class="activity-list" aria-live="polite"></div>
+    </div>
   </dialog>
 
   <script type="module" src="app.js"></script>

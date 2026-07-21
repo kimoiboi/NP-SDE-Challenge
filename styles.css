@@ -205,7 +205,6 @@ body {
   padding: 2px 7px;
 }
 
-/* per-column status dot color */
 .status-dot {
   width: 9px;
   height: 9px;
@@ -222,8 +221,14 @@ body {
   flex-direction: column;
   gap: 10px;
   flex: 1;
-  min-height: 60px; 
+  min-height: 60px;
   border-radius: 8px;
+}
+
+.board.is-dragging .column-list {
+  outline: 1.5px dashed var(--border-strong);
+  outline-offset: 3px;
+  background: rgba(53, 86, 232, 0.035);
 }
 
 .task-card {
@@ -235,12 +240,18 @@ body {
   cursor: grab;
   transition: box-shadow 140ms ease, border-color 140ms ease;
   position: relative;
+  animation: card-in 200ms ease backwards;
 }
 .task-card:hover {
   box-shadow: var(--shadow-card-lift);
   border-color: var(--border-strong);
 }
 .task-card:active { cursor: grabbing; }
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
 
 .task-card.sortable-ghost {
   opacity: 0.4;
@@ -249,6 +260,9 @@ body {
   box-shadow: none;
 }
 .task-card.sortable-drag { box-shadow: var(--shadow-card-lift); }
+
+.task-card.sortable-ghost,
+.task-card.sortable-drag { animation: none; }
 
 .column[data-status="done"] .task-title {
   color: var(--ink-soft);
@@ -375,6 +389,21 @@ body {
   backdrop-filter: blur(2px);
 }
 
+.task-dialog[open] {
+  animation: dialog-in 180ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.task-dialog[open]::backdrop {
+  animation: backdrop-in 180ms ease;
+}
+@keyframes dialog-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 .task-dialog form { padding: 22px 22px 18px; }
 
 .dialog-title {
@@ -424,6 +453,93 @@ body {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 6px;
+}
+
+.task-detail { width: min(480px, calc(100vw - 32px)); }
+
+.detail-inner { padding: 22px 22px 18px; }
+
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.detail-header .dialog-title {
+  margin-bottom: 6px;
+  overflow-wrap: anywhere;
+}
+
+.detail-close {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-faint);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.detail-close:hover { background: var(--surface-sunken); color: var(--ink); }
+
+.detail-desc {
+  margin: 0 0 10px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.activity-heading {
+  margin: 18px 0 10px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.activity-list {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  position: relative;
+  margin-left: 4px;
+  padding: 0 0 14px 16px;
+  border-left: 2px solid var(--border);
+  color: var(--ink);
+}
+.activity-item:last-child {
+  border-left-color: transparent;
+  padding-bottom: 2px;
+}
+.activity-item::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-progress);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.activity-item[data-action="created"]::before { background: var(--status-done); }
+
+.activity-text { line-height: 1.4; }
+
+.activity-time {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--ink-faint);
 }
 
 

@@ -1,5 +1,3 @@
-
-
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 import Sortable from "https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/+esm";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
@@ -20,6 +18,9 @@ const errorBanner = document.getElementById("error-banner");
 const errorText = document.getElementById("error-banner-text");
 const dialog = document.getElementById("task-dialog");
 const form = document.getElementById("task-form");
+const detailDialog = document.getElementById("task-detail-dialog");
+
+let suppressCardClick = false;
 
 init();
 
@@ -151,6 +152,12 @@ function buildCard(task) {
   del.addEventListener("click", () => deleteTask(task.id, card));
   card.appendChild(del);
 
+  card.addEventListener("click", (e) => {
+    if (e.target.closest(".task-delete")) return;
+    if (suppressCardClick) return;
+    openTaskDetail(task);
+  });
+
   return card;
 }
 
@@ -184,7 +191,16 @@ function refreshCounts() {
     if (s === "done") done = n;
     toggleEmptyState(s, n);
   });
-  statsEl.textContent = total === 0 ? "" : `${total} task${total === 1 ? "" : "s"} · ${done} done`;
+
+  const overdue = document.querySelectorAll(
+    ".column:not([data-status='done']) .due-badge.overdue"
+  ).length;
+
+  statsEl.textContent =
+    total === 0
+      ? ""
+      : `${total} task${total === 1 ? "" : "s"} · ${done} done` +
+        (overdue > 0 ? ` · ${overdue} overdue` : "");
 }
 
 function toggleEmptyState(status, count) {
@@ -224,15 +240,102 @@ document.getElementById("error-banner-dismiss").addEventListener("click", () => 
   errorBanner.hidden = true;
 });
 
+async function openTaskDetail(task) {
+  document.getElementById("detail-title").textContent = task.title;
+
+  const descEl = document.getElementById("detail-desc");
+  descEl.textContent = task.description || "";
+  descEl.hidden = !task.description;
+
+  const metaEl = document.getElementById("detail-meta");
+  metaEl.innerHTML = "";
+  if (task.priority) {
+    const chip = document.createElement("span");
+    chip.className = `chip priority-${task.priority}`;
+    chip.textContent = task.priority;
+    metaEl.appendChild(chip);
+  }
+  if (task.due_date) metaEl.appendChild(buildDueBadge(task.due_date));
+
+  detailDialog.showModal();
+  loadActivity(task.id);
+}
+
+async function loadActivity(taskId) {
+  const listEl = document.getElementById("activity-list");
+  listEl.textContent = "Loading activity…";
+
+  const { data, error } = await supabase
+    .from("task_activity")
+    .select("*")
+    .eq("task_id", taskId)
+    .order("created_at", { ascending: false });
+
+  listEl.textContent = "";
+  if (error) {
+    listEl.textContent = "Couldn't load activity.";
+    console.error(error);
+    return;
+  }
+  if (data.length === 0) {
+    listEl.textContent = "No activity yet.";
+    return;
+  }
+
+  data.forEach((entry) => {
+    const item = document.createElement("div");
+    item.className = "activity-item";
+    item.dataset.action = entry.action;
+
+    const text = document.createElement("div");
+    text.className = "activity-text";
+    text.textContent = entry.detail;
+    item.appendChild(text);
+
+    const time = document.createElement("span");
+    time.className = "activity-time";
+    time.textContent = timeAgo(entry.created_at);
+    time.title = new Date(entry.created_at).toLocaleString();
+    item.appendChild(time);
+
+    listEl.appendChild(item);
+  });
+}
+
+function timeAgo(dateStr) {
+  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+document.getElementById("btn-close-detail").addEventListener("click", () => detailDialog.close());
+
+detailDialog.addEventListener("click", (e) => {
+  if (e.target === detailDialog) detailDialog.close();
+});
+
 function initDragAndDrop() {
   STATUSES.forEach((status) => {
     new Sortable(lists[status], {
-      group: "board",          
+      group: "board",
       animation: 160,
       ghostClass: "sortable-ghost",
       dragClass: "sortable-drag",
-      filter: ".empty-state",  
+      filter: ".empty-state",
+      onStart() {
+        board.classList.add("is-dragging");
+      },
       onEnd(evt) {
+        board.classList.remove("is-dragging");
+
+        suppressCardClick = true;
+        setTimeout(() => (suppressCardClick = false), 300);
+
         const taskId = evt.item.dataset.id;
         const newStatus = evt.to.dataset.status;
         const oldStatus = evt.from.dataset.status;
