@@ -1,4 +1,4 @@
-# Downward  — Kanban Task Board
+# Doneward  — Kanban Task Board
 
 A Kanban-style task board with drag-and-drop, built with vanilla HTML/CSS/JavaScript,
 [Supabase](https://supabase.com) (Postgres + auth), and [SortableJS](https://sortablejs.github.io/Sortable/).
